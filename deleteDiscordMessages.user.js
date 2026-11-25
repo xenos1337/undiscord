@@ -1,17 +1,16 @@
 // ==UserScript==
 // @name            Undiscord
 // @description     Delete all messages in a Discord channel or DM (Bulk deletion)
-// @version         5.2.7
+// @version         5.2.8
 // @author          victornpb
 // @homepageURL     https://github.com/victornpb/undiscord
 // @supportURL      https://github.com/victornpb/undiscord/discussions
-// @match           https://*.discord.com/app
-// @match           https://*.discord.com/channels/*
-// @match           https://*.discord.com/login
+// @match           https://discord.com/*
+// @match           https://*.discord.com/*
 // @license         MIT
 // @namespace       https://github.com/victornpb/deleteDiscordMessages
 // @icon            https://victornpb.github.io/undiscord/images/icon128.png
-// @downloadURL     https://raw.githubusercontent.com/victornpb/undiscord/master/deleteDiscordMessages.user.js
+// @downloadURL     https://raw.githubusercontent.com/xenos1337/undiscord/master/deleteDiscordMessages.user.js
 // @contributionURL https://www.buymeacoffee.com/vitim
 // @grant           none
 // @attribution     Original project (https://github.com/victornpb/undiscord)
@@ -20,7 +19,7 @@
 	'use strict';
 
 	/* rollup-plugin-baked-env */
-	const VERSION = "5.2.7";
+	const VERSION = "5.2.8";
 
 	var themeCss = (`
 /* undiscord window */#undiscord.browser {    box-shadow: var(--shadow-border), var(--shadow-high);        border: 1px solid var(--border-subtle);    overflow: hidden;}#undiscord.container,#undiscord .container {    background-color: var(--background-surface-high);    border-radius: 8px;    box-sizing: border-box;    cursor: default;    flex-direction: column;}#undiscord .header {    background-color: var(--background-tertiary);    height: 48px;    align-items: center;    min-height: 48px;    padding: 0 16px;    display: flex;    color: var(--header-secondary);    cursor: grab;}#undiscord .header .icon {    color: var(--interactive-normal);    margin-right: 8px;    flex-shrink: 0;    width: 24;    height: 24;}#undiscord .header .icon:hover {    color: var(--interactive-hover);}#undiscord .header h3 {    font-size: 16px;    line-height: 20px;    font-weight: 500;    font-family: var(--font-display);    color: var(--header-primary);    flex-shrink: 0;    margin-right: 16px;}#undiscord .spacer {    flex-grow: 1;}#undiscord .header .vert-divider {    width: 1px;    height: 24px;    background-color: var(--background-modifier-accent);    margin-right: 16px;    flex-shrink: 0;}#undiscord legend,#undiscord label {    color: var(--header-secondary);    font-size: 12px;    line-height: 16px;    font-weight: 500;    text-transform: uppercase;    cursor: default;    font-family: var(--font-display);    margin-bottom: 8px;}#undiscord .multiInput {    display: flex;    align-items: center;    font-size: 16px;    box-sizing: border-box;    width: 100%;    border-radius: 3px;    color: var(--text-default);    background-color: var(--input-background);    border: none;    transition: border-color 0.2s ease-in-out 0s;}#undiscord .multiInput :first-child {    flex-grow: 1;}#undiscord .multiInput button:last-child {    margin-right: 4px;}#undiscord .input {    font-size: 16px;    width: 100%;    transition: border-color 0.2s ease-in-out 0s;    padding: 10px;    height: 44px;    background-color: var(--input-background);    border: 1px solid var(--input-border);    border-radius: 8px;    box-sizing: border-box;    color: var(--text-default);}#undiscord fieldset {    margin-top: 16px;}#undiscord .input-wrapper {    display: flex;    align-items: center;    font-size: 16px;    box-sizing: border-box;    width: 100%;    border-radius: 3px;    color: var(--text-default);    background-color: var(--input-background);    border: none;    transition: border-color 0.2s ease-in-out 0s;}#undiscord input[type="text"],#undiscord input[type="search"],#undiscord input[type="password"],#undiscord input[type="datetime-local"],#undiscord input[type="number"],#undiscord input[type="range"] {    background-color: var(--input-background);    border: 1px solid var(--input-border);    border-radius: 8px;    box-sizing: border-box;    color: var(--text-default);    font-size: 16px;    height: 44px;    padding: 12px 10px;    transition: border-color .2s ease-in-out;    width: 100%;}#undiscord .divider,#undiscord hr {    border: none;    margin-bottom: 24px;    padding-bottom: 4px;    border-bottom: 1px solid var(--background-modifier-accent);}#undiscord .sectionDescription {    margin-bottom: 16px;    color: var(--header-secondary);    font-size: 14px;    line-height: 20px;    font-weight: 400;}#undiscord a {    color: var(--text-link);    text-decoration: none;}#undiscord .btn,#undiscord button {    position: relative;    display: flex;    -webkit-box-pack: center;    justify-content: center;    -webkit-box-align: center;    align-items: center;    box-sizing: border-box;    background: none;    border: none;    border-radius: 3px;    font-size: 14px;    font-weight: 500;    line-height: 16px;    padding: 2px 16px;    user-select: none;    /* sizeSmall */    width: 60px;    height: 32px;    min-width: 60px;    min-height: 32px;    /* lookFilled colorPrimary */    color: rgb(255, 255, 255);    background-color: var(--button-secondary-background);}#undiscord .sizeMedium {    width: 96px;    height: 38px;    min-width: 96px;    min-height: 38px;}#undiscord .sizeMedium.icon {    width: 38px;    min-width: 38px;}#undiscord sup {    vertical-align: top;}/* lookFilled colorPrimary */#undiscord .accent {    background-color: var(--brand-experiment);}#undiscord .danger {    background-color: var(--button-danger-background);}#undiscord .positive {    background-color: var(--button-positive-background);}#undiscord .info {    font-size: 12px;    line-height: 16px;    padding: 8px 10px;    color: var(--text-muted);}/* Scrollbar */#undiscord .scroll::-webkit-scrollbar {    width: 8px;    height: 8px;}#undiscord .scroll::-webkit-scrollbar-corner {    background-color: transparent;}#undiscord .scroll::-webkit-scrollbar-thumb {    background-clip: padding-box;    border: 2px solid transparent;    border-radius: 4px;    background-color: var(--scrollbar-thin-thumb);    min-height: 40px;}#undiscord .scroll::-webkit-scrollbar-track {    border-color: var(--scrollbar-thin-track);    background-color: var(--scrollbar-thin-track);    border: 2px solid var(--scrollbar-thin-track);}/* fade scrollbar */#undiscord .scroll::-webkit-scrollbar-thumb,#undiscord .scroll::-webkit-scrollbar-track {    visibility: hidden;}#undiscord .scroll:hover::-webkit-scrollbar-thumb,#undiscord .scroll:hover::-webkit-scrollbar-track {    visibility: visible;}/**** functional classes ****/#undiscord.redact .priv {    display: none !important;}#undiscord.redact x:not(:active) {    color: transparent !important;    background-color: var(--primary-700) !important;    cursor: default;    user-select: none;}#undiscord.redact x:hover {    position: relative;}#undiscord.redact x:hover::after {    content: "Redacted information (Streamer mode: ON)";    position: absolute;    display: inline-block;    top: -32px;    left: -20px;    padding: 4px;    width: 150px;    font-size: 8pt;    text-align: center;    white-space: pre-wrap;    background-color: var(--background-floating);    -webkit-box-shadow: var(--elevation-high);    box-shadow: var(--elevation-high);    color: var(--text-default);    border-radius: 5px;    pointer-events: none;}#undiscord.redact [priv] {    -webkit-text-security: disc !important;}#undiscord :disabled {    display: none;}/**** layout and utility classes ****/#undiscord,#undiscord * {    box-sizing: border-box;}#undiscord .col {    display: flex;    flex-direction: column;}#undiscord .row {    display: flex;    flex-direction: row;    align-items: center;}#undiscord .mb1 {    margin-bottom: 8px;}#undiscord .log {    margin-bottom: 0.25em;}#undiscord .log-debug {    color: inherit;}#undiscord .log-info {    color: #00b0f4;}#undiscord .log-verb {    color: #72767d;}#undiscord .log-warn {    color: #faa61a;}#undiscord .log-error {    color: #f04747;}#undiscord .log-success {    color: #43b581;}
@@ -1064,9 +1063,31 @@
 	  return defaults;
 	}
 
+	// Discord may enforce Trusted Types (CSP "require-trusted-types-for 'script'"),
+	// which makes plain string assignments to innerHTML / insertAdjacentHTML throw.
+	// Wrap HTML strings in a TrustedHTML object when the browser supports it.
+
+	let policy;
+
+	function trustedHtml(html) {
+	  if (window.trustedTypes && window.trustedTypes.createPolicy) {
+	    if (policy === undefined) {
+	      policy = null;
+	      for (const name of ['undiscord', 'undiscord-' + Math.random().toString(36).slice(2), 'default']) {
+	        try {
+	          policy = window.trustedTypes.createPolicy(name, { createHTML: s => s });
+	          break;
+	        } catch { /* name not allowed or already taken, try next */ }
+	      }
+	    }
+	    if (policy) return policy.createHTML(html);
+	  }
+	  return html;
+	}
+
 	function createElm(html) {
 	  const temp = document.createElement('div');
-	  temp.innerHTML = html;
+	  temp.innerHTML = trustedHtml(html);
 	  return temp.removeChild(temp.firstElementChild);
 	}
 
@@ -1307,7 +1328,7 @@ body.undiscord-pick-message.after [id^="message-content-"]:hover::after {
 	  $('#toggleSidebar').onclick = ()=> ui.undiscordWindow.classList.toggle('hide-sidebar');
 	  $('button#start').onclick = startAction;
 	  $('button#stop').onclick = stopAction;
-	  $('button#clear').onclick = () => ui.logArea.innerHTML = '';
+	  $('button#clear').onclick = () => ui.logArea.textContent = '';
 	  $('button#getAuthor').onclick = () => $('input#authorId').value = getAuthorId();
 	  $('button#getGuild').onclick = () => {
 	    const guildId = $('input#guildId').value = getGuildId();
@@ -1390,7 +1411,7 @@ body.undiscord-pick-message.after [id^="message-content-"]:hover::after {
 	}
 
 	function printLog(type = '', args) {
-	  ui.logArea.insertAdjacentHTML('beforeend', `<div class="log log-${type}">${Array.from(args).map(o => typeof o === 'object' ? JSON.stringify(o, o instanceof Error && Object.getOwnPropertyNames(o)) : o).join('\t')}</div>`);
+	  ui.logArea.insertAdjacentHTML('beforeend', trustedHtml(`<div class="log log-${type}">${Array.from(args).map(o => typeof o === 'object' ? JSON.stringify(o, o instanceof Error && Object.getOwnPropertyNames(o)) : o).join('\t')}</div>`));
 	  if (ui.autoScroll.checked) ui.logArea.querySelector('div:last-child').scrollIntoView(false);
 	  if (type==='error') console.error(PREFIX, ...Array.from(args));
 	}
@@ -1417,7 +1438,7 @@ body.undiscord-pick-message.after [id^="message-content-"]:hover::after {
 	    const percent = value >= 0 && max ? Math.round(value / max * 100) + '%' : '';
 	    const elapsed = msToHMS(Date.now() - stats.startTime.getTime());
 	    const remaining = msToHMS(stats.etr);
-	    ui.percent.innerHTML = `${percent} (${value}/${max}) Elapsed: ${elapsed} Remaining: ${remaining}`;
+	    ui.percent.textContent = `${percent} (${value}/${max}) Elapsed: ${elapsed} Remaining: ${remaining}`;
 
 	    ui.progressIcon.value = value;
 	    ui.progressMain.value = value;
@@ -1429,7 +1450,7 @@ body.undiscord-pick-message.after [id^="message-content-"]:hover::after {
 	    } else {
 	      ui.progressIcon.removeAttribute('value');
 	      ui.progressMain.removeAttribute('value');
-	      ui.percent.innerHTML = '...';
+	      ui.percent.textContent = '...';
 	    }
 
 	    // update delays
@@ -1483,7 +1504,7 @@ body.undiscord-pick-message.after [id^="message-content-"]:hover::after {
 	  if (!guildId) return log.error('You must fill the "Server ID" field!');
 	 
 	  // clear logArea
-	  ui.logArea.innerHTML = '';
+	  ui.logArea.textContent = '';
 
 	  undiscordCore.resetState();
 	  undiscordCore.options = {
@@ -1534,6 +1555,21 @@ body.undiscord-pick-message.after [id^="message-content-"]:hover::after {
 
 	// ---- END Undiscord ----
 
-	initUI();
+	function start() {
+	  try {
+	    initUI();
+	    console.log('[UNDISCORD] UI loaded.');
+	  } catch (err) {
+	    console.error('[UNDISCORD] Failed to start:', err);
+	  }
+	}
+
+	// make sure Discord's root element exists before mounting
+	if (document.querySelector('#app-mount')) start();
+	else {
+	  const iv = setInterval(() => {
+	    if (document.querySelector('#app-mount')) { clearInterval(iv); start(); }
+	  }, 500);
+	}
 
 })();

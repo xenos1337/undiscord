@@ -11,6 +11,7 @@ import undiscordTemplate from './ui/undiscord.html';
 import UndiscordCore from './undiscord-core';
 import Drag from './utils/drag';
 import createElm from './utils/createElm';
+import trustedHtml from './utils/trustedHtml';
 import insertCss from './utils/insertCss';
 import messagePicker from './utils/messagePicker';
 import { getAuthorId, getGuildId, getChannelId, fillToken } from './utils/getIds';
@@ -125,7 +126,7 @@ function initUI() {
   $('#toggleSidebar').onclick = ()=> ui.undiscordWindow.classList.toggle('hide-sidebar');
   $('button#start').onclick = startAction;
   $('button#stop').onclick = stopAction;
-  $('button#clear').onclick = () => ui.logArea.innerHTML = '';
+  $('button#clear').onclick = () => ui.logArea.textContent = '';
   $('button#getAuthor').onclick = () => $('input#authorId').value = getAuthorId();
   $('button#getGuild').onclick = () => {
     const guildId = $('input#guildId').value = getGuildId();
@@ -208,7 +209,7 @@ function initUI() {
 }
 
 function printLog(type = '', args) {
-  ui.logArea.insertAdjacentHTML('beforeend', `<div class="log log-${type}">${Array.from(args).map(o => typeof o === 'object' ? JSON.stringify(o, o instanceof Error && Object.getOwnPropertyNames(o)) : o).join('\t')}</div>`);
+  ui.logArea.insertAdjacentHTML('beforeend', trustedHtml(`<div class="log log-${type}">${Array.from(args).map(o => typeof o === 'object' ? JSON.stringify(o, o instanceof Error && Object.getOwnPropertyNames(o)) : o).join('\t')}</div>`));
   if (ui.autoScroll.checked) ui.logArea.querySelector('div:last-child').scrollIntoView(false);
   if (type==='error') console.error(PREFIX, ...Array.from(args));
 }
@@ -235,7 +236,7 @@ function setupUndiscordCore() {
     const percent = value >= 0 && max ? Math.round(value / max * 100) + '%' : '';
     const elapsed = msToHMS(Date.now() - stats.startTime.getTime());
     const remaining = msToHMS(stats.etr);
-    ui.percent.innerHTML = `${percent} (${value}/${max}) Elapsed: ${elapsed} Remaining: ${remaining}`;
+    ui.percent.textContent = `${percent} (${value}/${max}) Elapsed: ${elapsed} Remaining: ${remaining}`;
 
     ui.progressIcon.value = value;
     ui.progressMain.value = value;
@@ -247,7 +248,7 @@ function setupUndiscordCore() {
     } else {
       ui.progressIcon.removeAttribute('value');
       ui.progressMain.removeAttribute('value');
-      ui.percent.innerHTML = '...';
+      ui.percent.textContent = '...';
     }
 
     // update delays
@@ -301,7 +302,7 @@ async function startAction() {
   if (!guildId) return log.error('You must fill the "Server ID" field!');
  
   // clear logArea
-  ui.logArea.innerHTML = '';
+  ui.logArea.textContent = '';
 
   undiscordCore.resetState();
   undiscordCore.options = {
