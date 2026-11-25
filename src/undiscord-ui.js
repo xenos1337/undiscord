@@ -61,9 +61,32 @@ function initUI() {
   // create undiscord Trash icon
   ui.undiscordBtn = createElm(buttonHtml);
   ui.undiscordBtn.onclick = toggleWindow;
+  // Discord frequently renames its hashed class names, so try several selectors
+  // and fall back to a floating button if no toolbar can be found.
+  const TOOLBAR_SELECTORS = [
+    '#app-mount section[class*="title"] [class*="toolbar"]',
+    '#app-mount [class^="toolbar"]',
+    '#app-mount [class*=" toolbar"]',
+    '#app-mount [class*="toolbar_"]',
+    '#app-mount [class*="-toolbar"]',
+    '#app-mount [class*="trailing_"]',
+  ];
+  function findToolbar() {
+    for (const sel of TOOLBAR_SELECTORS) {
+      const elms = Array.from(document.querySelectorAll(sel)).filter(e => e !== ui.undiscordBtn && !ui.undiscordWindow.contains(e) && e.offsetParent !== null);
+      if (elms.length) return elms[0];
+    }
+    return null;
+  }
   function mountBtn() {
-    const toolbar = document.querySelector('#app-mount [class*="-toolbar"]');
-    if (toolbar) toolbar.appendChild(ui.undiscordBtn);
+    const toolbar = findToolbar();
+    if (toolbar) {
+      ui.undiscordBtn.classList.remove('floating');
+      toolbar.appendChild(ui.undiscordBtn);
+    } else if (!document.body.contains(ui.undiscordBtn)) {
+      ui.undiscordBtn.classList.add('floating');
+      document.body.appendChild(ui.undiscordBtn);
+    }
   }
   mountBtn();
   // watch for changes and re-mount button if necessary
@@ -73,8 +96,9 @@ function initUI() {
     if (observerThrottle) return;
     observerThrottle = setTimeout(() => {
       observerThrottle = null;
-      if (!discordElm.contains(ui.undiscordBtn)) mountBtn(); // re-mount the button to the toolbar
-    }, 3000);
+      // re-mount the button to the toolbar (also upgrades the floating fallback once a toolbar appears)
+      if (!discordElm.contains(ui.undiscordBtn) || ui.undiscordBtn.classList.contains('floating')) mountBtn();
+    }, 1000);
   });
   observer.observe(discordElm, { attributes: false, childList: true, subtree: true });
 

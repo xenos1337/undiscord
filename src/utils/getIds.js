@@ -8,7 +8,20 @@ export function getToken() {
   } catch {
     log.info('Could not automatically detect Authorization Token in local storage!');
     log.info('Attempting to grab token using webpack');
-    return (window.webpackChunkdiscord_app.push([[''], {}, e => { window.m = []; for (let c in e.c) window.m.push(e.c[c]); }]), window.m).find(m => m?.exports?.default?.getToken !== void 0).exports.default.getToken();
+    let req;
+    window.webpackChunkdiscord_app.push([[Symbol('undiscord')], {}, r => { req = r; }]);
+    for (const id in req.c) {
+      const exp = req.c[id]?.exports;
+      if (!exp || typeof exp !== 'object') continue;
+      for (const key of [null, ...Object.keys(exp)]) {
+        const obj = key === null ? exp : exp[key];
+        if (obj && typeof obj.getToken === 'function') {
+          const t = obj.getToken();
+          if (typeof t === 'string' && t.length) return t;
+        }
+      }
+    }
+    throw new Error('Token not found in webpack modules');
   }
 }
 

@@ -9,6 +9,7 @@ import {
   ask,
   toSnowflake,
 } from './utils/helpers.js';
+import { getClientHeaders } from './utils/clientHeaders.js';
 
 /**
  * Delete all messages in a Discord channel or DM
@@ -248,6 +249,7 @@ class UndiscordCore {
       ]), {
         headers: {
           'Authorization': this.options.authToken,
+          ...getClientHeaders(),
         }
       });
       this.afterRequest();
@@ -260,7 +262,7 @@ class UndiscordCore {
     // not indexed yet
     if (resp.status === 202) {
       let w = (await resp.json()).retry_after * 1000;
-      w = w || this.stats.searchDelay; // Fix retry_after 0
+      w = w || this.options.searchDelay; // Fix retry_after 0
       this.stats.throttledCount++;
       this.stats.throttledTotalTime += w;
       log.warn(`This channel isn't indexed yet. Waiting ${w}ms for discord to index it...`);
@@ -272,12 +274,12 @@ class UndiscordCore {
       // searching messages too fast
       if (resp.status === 429) {
         let w = (await resp.json()).retry_after * 1000;
-        w = w || this.stats.searchDelay; // Fix retry_after 0
+        w = w || this.options.searchDelay; // Fix retry_after 0
 
         this.stats.throttledCount++;
         this.stats.throttledTotalTime += w;
-        this.stats.searchDelay += w; // increase delay
-        w = this.stats.searchDelay;
+        this.options.searchDelay += w; // increase delay
+        w = this.options.searchDelay;
         log.warn(`Being rate limited by the API for ${w}ms! Increasing search delay...`);
         this.printStats();
         log.verb(`Cooling down for ${w * 2}ms before retrying...`);
@@ -373,6 +375,7 @@ class UndiscordCore {
         method: 'DELETE',
         headers: {
           'Authorization': this.options.authToken,
+          ...getClientHeaders(),
         },
       });
       this.afterRequest();
